@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect
 import requests	# pip install requests
 import json
 
-
 response = requests.get('https://opentdb.com/api.php?amount=10')
 
 print(response.status_code)
@@ -15,6 +14,18 @@ print('\n')
 super_data = json.loads(data)
 num_correct = 0 
 print(type(super_data))
+
+
+application = Flask(__name__)
+
+@application.route('/')
+def initialize():
+	return redirect('/home')
+
+@application.route('/home')
+def home():
+	return render_template('home.html', title='Home Page')
+
 
 for i in super_data['results']:
 	print('question: ' + i['question'])
