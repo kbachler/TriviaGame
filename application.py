@@ -4,7 +4,7 @@ from random import shuffle
 
 num_times = 0
 num_correct = 0 
-
+num_total = 3
 application = Flask(__name__)
 
 @application.route('/')
@@ -17,7 +17,7 @@ def home():
 
 @application.route('/start_game')
 def start_game():
-	if num_times == 3:
+	if num_times == num_total:
 		return redirect('/results')
 
 	response = requests.get('https://opentdb.com/api.php?amount=1&type=multiple')
