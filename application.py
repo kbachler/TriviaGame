@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-import requests, json, html, boto3
+import requests, json, html, boto3, os
 from boto3.dynamodb.conditions import Key, Attr
 from random import shuffle
 
@@ -78,22 +78,26 @@ def create_user():
 	last_name = request.form['last_name']
 	email = request.form['email']
 
-	user_data = s3.Object('css490trivia', 'rawuserdata.txt').get()
-	list = user_data['Body'].read().decode('utf-8').splitlines()
+	user_data = s3.Object('css490trivia', 'rawuserdata.txt')
+	list = user_data.get()['Body'].read().decode('utf-8').splitlines()
 	f = open('rawuserdata.txt', 'a')
 	for line in list:
 		f.write(line + '\n')
-	f.write(first_name + ',' + last_name + ',' + email + ',' + str(num_correct))
+	f.write(first_name + ',' + last_name + ',' + email + ',' + str(num_correct) + '\n')
 
 	# Upload file to S3 bucket
-
+	user_data.upload_file('rawuserdata.txt')
+	
 	# Delete file locally
+	f.close()
+	os.remove('rawuserdata.txt')
+
 	return redirect('/results')
 
 
 def maintain_scores():
-	user_data = s3.Object('css490trivia', 'userdata.txt').get()
-	list = user_data['Body'].read().decode('utf-8').splitlines()
+	user_data = s3.Object('css490trivia', 'rawuserdata.txt')
+	list = user_data.get()['Body'].read().decode('utf-8').splitlines()
 	f = open('userdata.txt', 'a')
 	for line in list:
 		# Info[0] = 'David'
