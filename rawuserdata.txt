@@ -1,0 +1,10 @@
+David,Cha,dkcha2@uw.edu,3
+David,Cha,dkcha2@uw.edu,0
+David,Cha,dkcha2@uw.edu,3
+David,Cha,dkcha2@uw.edu,0
+David,Cha,dkcha2@uw.edu,0David,Cha,dkcha2@uw.edu,3
+David,Cha,dkcha2@uw.edu,0
+David,Cha,dkcha2@uw.edu,3
+David,Cha,dkcha2@uw.edu,0
+David,Cha,dkcha2@uw.edu,0
+David,Cha,dkcha2@uw.edu,2

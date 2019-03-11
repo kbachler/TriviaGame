@@ -1,7 +1,15 @@
 from flask import Flask, render_template, request, redirect
-import requests, json, html
+import requests, json, html, boto3
+from boto3.dynamodb.conditions import Key, Attr
 from random import shuffle
 
+# Initialize AWS services
+s3 = boto3.resource('s3')
+db = boto3.resource('dynamodb', region_name='us-west-2')
+db_client = boto3.client('dynamodb', region_name='us-west-2')
+#table = db.Table('css490prog4')
+
+# Trivia game variables
 num_times = 0
 num_correct = 0 
 num_total = 3
@@ -15,12 +23,15 @@ def initialize():
 def home():
 	return render_template('home.html', title='Home Page')
 
+# Starts the Trivia game instance
 @application.route('/start_game')
 def start_game():
 	if num_times == num_total:
-		return redirect('/results')
+		return render_template('user_creation.html', title='Create User')
+		#return redirect('/user_creation') # Needs to redirect to user creation which redirects to results
 
-	response = requests.get('https://opentdb.com/api.php?amount=1&type=multiple')
+	response = requests.get('https://opentdb.com/api.php?amount=' + str(num_total) + \
+							'&type=multiple')
 	data = response.content.decode('utf-8')
 	api_response = json.loads(data)
 	print(api_response)
@@ -36,6 +47,7 @@ def start_game():
 							ans1=answers[0], ans2=answers[1], ans3=answers[2], 		 \
 							ans4=answers[3], correct_answer=correct_answer)
 
+# Checks to see if user's answer is correct or not
 @application.route('/check_answer', methods=['POST'])
 def check_answer():
 	if 'ans' not in request.form:
@@ -51,11 +63,45 @@ def check_answer():
 
 	return redirect('/start_game')
 
+# Prints the user's game results
 @application.route('/results')
 def print_results():
 	global num_times, num_correct
-	return render_template('results.html', title='Results', num_correct=num_correct, num_times=num_times)
+	return render_template('results.html', title='Results', \
+							num_correct=num_correct, num_times=num_times)
 
+# Creates the user account to store info in various AWS services
+# and keep track of their high score
+@application.route('/user_creation', methods=['POST'])
+def create_user():
+	first_name = request.form['first_name']
+	last_name = request.form['last_name']
+	email = request.form['email']
+
+	user_data = s3.Object('css490trivia', 'rawuserdata.txt').get()
+	list = user_data['Body'].read().decode('utf-8').splitlines()
+	f = open('rawuserdata.txt', 'a')
+	for line in list:
+		f.write(line + '\n')
+	f.write(first_name + ',' + last_name + ',' + email + ',' + str(num_correct))
+
+	# Upload file to S3 bucket
+
+	# Delete file locally
+	return redirect('/results')
+
+
+def maintain_scores():
+	user_data = s3.Object('css490trivia', 'userdata.txt').get()
+	list = user_data['Body'].read().decode('utf-8').splitlines()
+	f = open('userdata.txt', 'a')
+	for line in list:
+		# Info[0] = 'David'
+		
+		info = line.split(',')
+
+
+# Restarts the game instance
 @application.route('/reset', methods=['POST'])
 def reset():
 	global num_times, num_correct

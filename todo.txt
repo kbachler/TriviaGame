@@ -1,0 +1,9 @@
+Home
+StartGame
+...
+User creation with name + email
+	Create DynamoDB entry with name, email, and their score
+	Input same line into S3 bucket file as raw-info
+	Sort S3 bucket file for scores
+
+Print results
