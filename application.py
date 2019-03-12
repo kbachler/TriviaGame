@@ -7,7 +7,7 @@ from random import shuffle
 s3 = boto3.resource('s3')
 db = boto3.resource('dynamodb', region_name='us-west-2')
 db_client = boto3.client('dynamodb', region_name='us-west-2')
-#table = db.Table('css490prog4')
+table = db.Table('triviadb')
 
 # Trivia game variables
 num_times = 0
@@ -28,13 +28,11 @@ def home():
 def start_game():
 	if num_times == num_total:
 		return render_template('user_creation.html', title='Create User')
-		#return redirect('/user_creation') # Needs to redirect to user creation which redirects to results
 
 	response = requests.get('https://opentdb.com/api.php?amount=' + str(num_total) + \
 							'&type=multiple')
 	data = response.content.decode('utf-8')
 	api_response = json.loads(data)
-	print(api_response)
 	answers = []
 	question = html.unescape(api_response['results'][0]['question'])
 	for i in api_response['results'][0]['incorrect_answers']:
@@ -50,17 +48,15 @@ def start_game():
 # Checks to see if user's answer is correct or not
 @application.route('/check_answer', methods=['POST'])
 def check_answer():
-	if 'ans' not in request.form:
-		redirect('/start_game')
 	global num_times, num_correct
 	correct_answer = request.form['correct_answer']
+	# For testing purposes
 	print('YOUR INPUT: ' + request.form['ans'])
 	print('REAL ANS: ' + request.form['correct_answer'])
 	if request.form['ans'] == correct_answer:
 		num_correct += 1
 
 	num_times += 1
-
 	return redirect('/start_game')
 
 # Prints the user's game results
@@ -88,6 +84,27 @@ def create_user():
 	# Upload file to S3 bucket
 	user_data.upload_file('rawuserdata.txt')
 	
+	# Upload entry into DB if score > prior high score
+	db_entry = {}
+	row = table.scan(FilterExpression=Attr('email').eq(email))
+
+	# If item does not exist in table
+	if row['Count'] == 0:
+		db_entry['email'] = email
+		db_entry['first_name'] = first_name
+		db_entry['last_name'] = last_name
+		db_entry['highscore'] = num_correct
+		table.put_item(Item=db_entry)
+	else:
+		prior_highscore = row['Items'][0]['highscore']
+		if num_correct > prior_highscore:
+			table.update_item(
+				Key={'email':email},
+				UpdateExpression='set highscore=:highscore',
+				ExpressionAttributeValues={':highscore': num_correct},
+				ReturnValues='UPDATED_NEW'
+			)
+
 	# Delete file locally
 	f.close()
 	os.remove('rawuserdata.txt')
