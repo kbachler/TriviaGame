@@ -14,6 +14,17 @@ num_times = 0
 num_correct = 0 
 num_total = 3
 application = Flask(__name__)
+response = ''
+category = ''
+category_list = {
+				'Anime':'https://opentdb.com/api.php?amount=5&category=31&difficulty=hard&type=multiple',
+				'Video Games':'https://opentdb.com/api.php?amount=5&category=15&type=multiple',
+				'Random':'https://opentdb.com/api.php?amount=5&type=multiple',
+				'Film':'https://opentdb.com/api.php?amount=5&category=11&type=multiple',
+				'Music':'https://opentdb.com/api.php?amount=5&category=12&type=multiple',
+				'Animals':'https://opentdb.com/api.php?amount=5&category=27&type=multiple',
+				'Mythology':'https://opentdb.com/api.php?amount=5&category=20&type=multiple'
+				}
 
 @application.route('/')
 def initialize():
@@ -23,14 +34,21 @@ def initialize():
 def home():
 	return render_template('home.html', title='Home Page')
 
+@application.route('/choose_category', methods=['POST'])
+def choose_category():
+	global category
+	category = request.form['choice']
+	return redirect('/start_game')
+
 # Starts the Trivia game instance
 @application.route('/start_game')
 def start_game():
+	global category
 	if num_times == num_total:
 		return render_template('user_creation.html', title='Create User')
 
-	response = requests.get('https://opentdb.com/api.php?amount=' + str(num_total) + \
-							'&type=multiple')
+	response = requests.get(category_list[category])
+
 	data = response.content.decode('utf-8')
 	api_response = json.loads(data)
 	answers = []
@@ -43,7 +61,8 @@ def start_game():
 
 	return render_template('start_game.html', title='Game Start', question=question, \
 							ans1=answers[0], ans2=answers[1], ans3=answers[2], 		 \
-							ans4=answers[3], correct_answer=correct_answer)
+							ans4=answers[3], correct_answer=correct_answer,
+							bg_image='pingu.jpg')
 
 # Checks to see if user's answer is correct or not
 @application.route('/check_answer', methods=['POST'])
