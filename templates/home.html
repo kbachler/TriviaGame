@@ -16,6 +16,11 @@
 	  background-position: center;
 	  background-size: cover;
 	}
+	.center_block {
+		display: block;
+	 	margin-right: auto;
+ 		margin-left: auto;
+	}
 	label {
 	    display: inline;
 	    background-color: #FFAA3B;
@@ -26,7 +31,7 @@
   <body>
   	<div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
 	  	<div class="w3-display-middle">
-	  		<div style="background-color:#000000; text-align:left; vertical-align: middle; padding:25px 25px;"> 
+	  		<div style="background-color:#000000; text-align:left; vertical-align: middle; padding:25px 25px"> 
 	  		 	<h1 class="w3-jumbo w3-animate-top">TriviaGame</h1>
 	   			<p class="w3-large w3-center w3-text-white">Choose Category:</p> 
 	   		</div>
@@ -42,6 +47,12 @@
 				    <input type="submit" name="choice" value="Mythology"></input><br></br>
 			    </form>
 			</div>
+			<form action="/leaderboard" method="get">
+				<div style="background-color: #FFFFFF; text-align:center; position:relative;">
+					<p class="w3-large w3-center w3-text-black">See Leaderboard</p> 
+					<input class="center-block" type="submit" name="leaderboard" value="Leaderboard">Leaderboard</input> 
+				</div>
+			</form>
 		</div>
 	</div>
   </body>

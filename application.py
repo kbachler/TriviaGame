@@ -140,6 +140,14 @@ def maintain_scores():
 		
 		info = line.split(',')
 
+@application.route('/leaderboard')
+def display_leaderboard():
+	row = {}
+	if table.scan()['Count'] == 0:
+		redirect('/home')
+
+	
+
 
 # Restarts the game instance
 @application.route('/reset', methods=['POST'])
