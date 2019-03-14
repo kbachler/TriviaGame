@@ -147,13 +147,48 @@ def check_score():
 
 @application.route('/leaderboard')
 def display_leaderboard():
-	row = {}
+	score_list = []
 	if table.scan()['Count'] == 0:
 		redirect('/home')
 
-	items = table.scan()
-	for item in items['Items']:
-		print(item)
+	items = table.scan()['Items']
+
+	for item in items:
+		#print(item)
+		score_list.append(item)
+
+	#print(score_list)
+	
+	# Bubble sort
+	for i in range(len(score_list) - 1, 0, -1):
+		for x in range(i):
+			val1 = int(score_list[x]['highscore'])
+			val2 = int(score_list[x + 1]['highscore'])
+			if val1 > val2:
+				temp = score_list[x]
+				score_list[x] = score_list[x + 1]
+				score_list[x + 1] = temp
+
+	# Reverse list to get descending order of scores
+	score_list.reverse()
+
+	return render_template('leaderboard.html', title='Leaderboard', \
+					 first_name1=score_list[0]['first_name'], \
+					 last_name1=score_list[0]['last_name'], \
+					 highscore1=score_list[0]['highscore'], \
+					 first_name2=score_list[1]['first_name'], \
+					 last_name2=score_list[1]['last_name'], \
+					 highscore2=score_list[1]['highscore'], \
+					 first_name3=score_list[2]['first_name'], \
+					 last_name3=score_list[2]['last_name'], \
+					 highscore3=score_list[2]['highscore'], \
+					 first_name4=score_list[3]['first_name'], \
+					 last_name4=score_list[3]['last_name'], \
+					 highscore4=score_list[3]['highscore'], \
+					 first_name5=score_list[4]['first_name'], \
+					 last_name5=score_list[4]['last_name'], \
+					 highscore5=score_list[4]['highscore'])
+
 
 # Restarts the game instance
 @application.route('/reset', methods=['POST'])
