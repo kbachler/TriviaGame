@@ -37,7 +37,6 @@
 	   		</div>
 		    <div style="background-color: #000000; position:relative; text-align: center">
 			    <form action="/choose_category" method="post">
-			    	<!-- <input type="submit" value="Start Game"></input> -->
 			    	<input type="submit" name="choice" value="Random"></input><br></br>
 				    <input type="submit" name="choice" value="Video Games"></input><br></br>
 				    <input type="submit" name="choice" value="Anime"></input><br></br>
@@ -47,12 +46,19 @@
 				    <input type="submit" name="choice" value="Mythology"></input><br></br>
 			    </form>
 			</div>
-			<form action="/leaderboard" method="get">
-				<div style="background-color: #FFFFFF; text-align:center; position:relative;">
-					<p class="w3-large w3-center w3-text-black">See Leaderboard</p> 
-					<input class="center-block" type="submit" name="leaderboard" value="Leaderboard">Leaderboard</input> 
-				</div>
-			</form>
+			<div style="background-color: #42f4d9; text-align:center; position:relative; padding: 10px">
+				<form action="/leaderboard" method="get">
+						<p class="w3-large w3-center w3-text-black">See Leaderboard</p> 
+						<input class="center-block" type="submit" name="leaderboard" value="Leaderboard"></input> 
+				</form>
+			</div>
+			<div>
+				<form action="check_score" method="post">
+					<label>Check Score by Email</label>
+					<input type="text" name="email"></input>
+					<input type="submit" value="Submit"></input>
+				</form>
+			</div>
 		</div>
 	</div>
   </body>

@@ -101,7 +101,7 @@ def create_user():
 	f.write(first_name + ',' + last_name + ',' + email + ',' + str(num_correct) + '\n')
 
 	# Upload file to S3 bucket
-	user_data.upload_file('rawuserdata.txt')
+	#user_data.upload_file('rawuserdata.txt')
 	
 	# Upload entry into DB if score > prior high score
 	db_entry = {}
@@ -126,19 +126,24 @@ def create_user():
 
 	# Delete file locally
 	f.close()
-	os.remove('rawuserdata.txt')
+	#os.remove('rawuserdata.txt')
 
 	return redirect('/results')
 
+@application.route('/check_score', methods=['POST'])
+def check_score():
+	# scan DB for entry
+	email = request.form['email']
+	row = table.scan(FilterExpression=Attr('email').eq(email))
+	
+	# If user does not exist
+	if len(row) == 0 or row['Count'] == 0:
+		return render_template('score.html', title='Your Score', \
+							highscore='absolutely nothing')
 
-def maintain_scores():
-	user_data = s3.Object('css490trivia', 'rawuserdata.txt')
-	list = user_data.get()['Body'].read().decode('utf-8').splitlines()
-	f = open('userdata.txt', 'a')
-	for line in list:
-		# Info[0] = 'David'
-		
-		info = line.split(',')
+	highscore = row['Items'][0]['highscore']
+	return render_template('score.html', title='Your Score', \
+							highscore=highscore)
 
 @application.route('/leaderboard')
 def display_leaderboard():
@@ -146,8 +151,9 @@ def display_leaderboard():
 	if table.scan()['Count'] == 0:
 		redirect('/home')
 
-	
-
+	items = table.scan()
+	for item in items['Items']:
+		print(item)
 
 # Restarts the game instance
 @application.route('/reset', methods=['POST'])
