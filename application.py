@@ -12,12 +12,12 @@ table = db.Table('triviadb')
 # Trivia game variables
 num_times = 0
 num_correct = 0 
-num_total = 3
+num_total = 10
 application = Flask(__name__)
 response = ''
 category = ''
 category_list = {
-				'Anime':'https://opentdb.com/api.php?amount=5&category=31&difficulty=hard&type=multiple',
+				'Anime':'https://opentdb.com/api.php?amount=5&category=31&type=multiple',
 				'Video Games':'https://opentdb.com/api.php?amount=5&category=15&type=multiple',
 				'Random':'https://opentdb.com/api.php?amount=5&type=multiple',
 				'Film':'https://opentdb.com/api.php?amount=5&category=11&type=multiple',
