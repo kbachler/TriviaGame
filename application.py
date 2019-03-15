@@ -1,7 +1,14 @@
 from flask import Flask, render_template, request, redirect
+from flask_login import LoginManager 
 import requests, json, html, boto3, os
 from boto3.dynamodb.conditions import Key, Attr
 from random import shuffle
+
+
+# Flask Login
+application = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(application)
 
 # Initialize AWS services
 s3 = boto3.resource('s3')
@@ -10,21 +17,51 @@ db_client = boto3.client('dynamodb', region_name='us-west-2')
 table = db.Table('triviadb')
 
 # Trivia game variables
+session_token = requests.get('https://opentdb.com/api_token.php?command=request')
+token = json.loads(session_token.content.decode('utf-8'))['token']
+
 num_times = 0
 num_correct = 0 
 num_total = 10
-application = Flask(__name__)
 response = ''
 category = ''
 category_list = {
-				'Anime':'https://opentdb.com/api.php?amount=5&category=31&type=multiple',
-				'Video Games':'https://opentdb.com/api.php?amount=5&category=15&type=multiple',
-				'Random':'https://opentdb.com/api.php?amount=5&type=multiple',
-				'Film':'https://opentdb.com/api.php?amount=5&category=11&type=multiple',
-				'Music':'https://opentdb.com/api.php?amount=5&category=12&type=multiple',
-				'Animals':'https://opentdb.com/api.php?amount=5&category=27&type=multiple',
-				'Mythology':'https://opentdb.com/api.php?amount=5&category=20&type=multiple'
+				'Anime':'https://opentdb.com/api.php?amount=10&category=31&type=multiple&token=' + token,
+				'Video Games':'https://opentdb.com/api.php?amount=10&category=15&type=multiple&token=' + token,
+				'Random':'https://opentdb.com/api.php?amount=10&type=multiple&token=' + token,
+				'Film':'https://opentdb.com/api.php?amount=10&category=11&type=multiple&token=' + token,
+				'Music':'https://opentdb.com/api.php?amount=10&category=12&type=multiple&token=' + token,
+				'Animals':'https://opentdb.com/api.php?amount=10&category=27&type=multiple&token=' + token,
+				'Mythology':'https://opentdb.com/api.php?amount=10&category=20&type=multiple&token=' + token
 				}
+category_chosen = False
+question_num = 0
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+@application.route('/login', methods=['GET', 'POST'])
+def login():
+    # Here we use a class of some kind to represent and validate our
+    # client-side form data. For example, WTForms is a library that will
+    # handle this for us, and we use a custom LoginForm to validate.
+    form = LoginForm()
+    if form.validate_on_submit():
+        # Login and validate the user.
+        # user should be an instance of your `User` class
+        login_user(user)
+
+        flask.flash('Logged in successfully.')
+
+        next = flask.request.args.get('next')
+        # is_safe_url should check if the url is safe for redirects.
+        # See http://flask.pocoo.org/snippets/62/ for an example.
+        if not is_safe_url(next):
+            return flask.abort(400)
+
+        return flask.redirect(next or flask.url_for('index'))
+    return flask.render_template('login.html', form=form)
 
 @application.route('/')
 def initialize():
@@ -43,22 +80,24 @@ def choose_category():
 # Starts the Trivia game instance
 @application.route('/start_game')
 def start_game():
-	global category
-	if num_times == num_total:
+	global category, category_chosen, response, question_num
+	if num_times >= num_total:
 		return render_template('user_creation.html', title='Create User')
 
-	response = requests.get(category_list[category])
+	if category_chosen == False:
+		response = requests.get(category_list[category])
+		category_chosen = True
 
 	data = response.content.decode('utf-8')
 	api_response = json.loads(data)
 	answers = []
-	question = html.unescape(api_response['results'][0]['question'])
-	for i in api_response['results'][0]['incorrect_answers']:
+	question = html.unescape(api_response['results'][question_num]['question'])
+	for i in api_response['results'][question_num]['incorrect_answers']:
 		answers.append(html.unescape(i))
-	correct_answer = html.unescape(api_response['results'][0]['correct_answer'])
+	correct_answer = html.unescape(api_response['results'][question_num]['correct_answer'])
 	answers.append(correct_answer)
 	shuffle(answers)
-
+	question_num += 1
 	return render_template('start_game.html', title='Game Start', question=question, \
 							ans1=answers[0], ans2=answers[1], ans3=answers[2], 		 \
 							ans4=answers[3], correct_answer=correct_answer,
@@ -156,8 +195,6 @@ def display_leaderboard():
 	for item in items:
 		#print(item)
 		score_list.append(item)
-
-	#print(score_list)
 	
 	# Bubble sort
 	for i in range(len(score_list) - 1, 0, -1):
@@ -193,9 +230,11 @@ def display_leaderboard():
 # Restarts the game instance
 @application.route('/reset', methods=['POST'])
 def reset():
-	global num_times, num_correct
+	global num_times, num_correct, category_chosen, question_num
 	num_times = 0
 	num_correct = 0
+	category_chosen = False
+	question_num = 0
 	return redirect('/home')
 
 if __name__ == "__main__":
