@@ -79,7 +79,8 @@ def choose_category():
 @application.route('/start_game')
 def start_game():
 	global category, category_chosen, response, question_num
-	if num_times >= num_total:
+
+	if num_times >= num_total or question_num >= num_total:
 		return render_template('user_creation.html', title='Create User')
 
 	if category_chosen == False:
@@ -88,7 +89,18 @@ def start_game():
 
 	data = response.content.decode('utf-8')
 	api_response = json.loads(data)
+
+	# Resets token if questions are all exhausted
+	if api_response['response_code'] == 4:
+		global session_token, token
+		session_token = requests.get('https://opentdb.com/api_token.php?command=reset&token=' + str(token))
+		token = json.loads(session_token.content.decode('utf-8'))['token']
+		response = requests.get(category_list[category])
+		data = response.content.decode('utf-8')
+		api_response = json.loads(data)
+
 	answers = []
+
 	question = html.unescape(api_response['results'][question_num]['question'])
 	for i in api_response['results'][question_num]['incorrect_answers']:
 		answers.append(html.unescape(i))
@@ -99,7 +111,7 @@ def start_game():
 	return render_template('start_game.html', title='Game Start', question=question, \
 							ans1=answers[0], ans2=answers[1], ans3=answers[2], 		 \
 							ans4=answers[3], correct_answer=correct_answer,
-							bg_image='pingu.jpg')
+							bg_image='pingu.jpg', question_num=question_num)
 
 # Checks to see if user's answer is correct or not
 @application.route('/check_answer', methods=['POST'])

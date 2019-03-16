@@ -28,26 +28,22 @@
 	  	<div class="w3-display-middle">
 	  		<div style="background-color:#000000; text-align:left; vertical-align: middle; padding:25px 25px;"> 
 	  		 	<h1 class="w3-jumbo w3-animate-top">TriviaGame</h1>
-	   			<p class="w3-large w3-center w3-text-white">{{question}}</p> 
+	   			<p class="w3-large w3-center w3-text-white">{{question_num}}: {{question}}</p> 
 	   		</div>
 		    <div style="background-color: #000000">
 			    <form action="/check_answer" method="post">
 			    	<div style="position:relative; text-align: center">
 				    	<div style="padding:25px 25px">
-							<label>{{ans1}}</label>
-							<input type="radio" name="ans" value="{{ans1}}" checked></input>
+							<input type="submit" name="ans" value="{{ans1}}" checked></input>
 						</div>
 						<div style="padding:25px 25px">
-							<label>{{ans2}}</label>
-							<input type="radio" name="ans" value="{{ans2}}"></input>
+							<input type="submit" name="ans" value="{{ans2}}"></input>
 						</div>
 						<div style="padding:25px 25px">
-							<label>{{ans3}}</label>
-							<input type="radio" name="ans" value="{{ans3}}"></input>
+							<input type="submit" name="ans" value="{{ans3}}"></input>
 						</div>
 						<div style="padding:25px 25px">
-							<label>{{ans4}}</label>
-							<input type="radio" name="ans" value="{{ans4}}"></input>
+							<input type="submit" name="ans" value="{{ans4}}"></input>
 							<br></br>
 						</div>
 						<input type="hidden" name="correct_answer" value="{{correct_answer}}"></input>
