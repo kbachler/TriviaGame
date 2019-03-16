@@ -6,21 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+	<link rel="shortcut icon" href="https://s3-us-west-2.amazonaws.com/css490trivia/icon.jpg"/>
   </head>
   <style>
 	body,h1 {font-family: "Raleway", sans-serif}
 	body, html {height: 100%}
 	.bgimg {
-	  background-image: url("static/pingu.jpg");
+	  background-image: url("https://s3-us-west-2.amazonaws.com/css490trivia/pingu.jpg");
 	  min-height: 100%;
 	  background-position: center;
 	  background-size: cover;
 	}
 	label {
 	    display: inline;
-	    background-color: #FFAA3B;
+	    background-color: #000000;
+	    border: solid;
+		border-color: #80ffff;
+		color: #80ffff;
 	    padding: 0.5em 1em;
 	    box-decoration-break: clone;
+	}
+	.option {
+		background-color: #000000;
+		border: solid;
+		border-color: #80ffff;
+		color: #80ffff;
+		width: 60%;
+		margin: 1%;
+		float: center;
+	}
+	input[type="submit"]:active {
+		background-color: #80ffff;
+		border: solid;
+		border-color: #000000;
+		color: #000000;
 	}
   </style>
   <body>
@@ -38,7 +57,7 @@
 					<input type="text" name="last_name"></input>
 					<label>Email</label>
 					<input type="email" name="email"></input>
-					<input type="submit" value="Submit"></input>
+					<input type="submit" class="option" value="Submit"></input>
 				</form>
 			</div>
 		</div>

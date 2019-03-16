@@ -6,57 +6,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+	<link rel="shortcut icon" href="https://s3-us-west-2.amazonaws.com/css490trivia/icon.jpg"/>
   </head>
   <style>
 	body,h1 {font-family: "Raleway", sans-serif}
 	body, html {height: 100%}
 	.bgimg {
-	  background-image: url("static/pingu.jpg");
+	  background-image: url("https://s3-us-west-2.amazonaws.com/css490trivia/pingu.jpg");
 	  min-height: 100%;
 	  background-position: center;
 	  background-size: cover;
 	}
-	.center_block {
-		display: block;
-	 	margin-right: auto;
- 		margin-left: auto;
-	}
 	label {
 	    display: inline;
-	    background-color: #FFAA3B;
+	    background-color: #000000;
+	    border: solid;
+		border-color: #80ffff;
+		color: #80ffff;
 	    padding: 0.5em 1em;
 	    box-decoration-break: clone;
+	}
+	.option {
+		background-color: #000000;
+		border: solid;
+		border-color: #80ffff;
+		color: #80ffff;
+		width: 60%;
+		margin: 1%;
+		float: center;
+	}
+	input[type="submit"]:active {
+		background-color: #80ffff;
+		border: solid;
+		border-color: #000000;
+		color: #000000;
 	}
   </style>
   <body>
   	<div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
 	  	<div class="w3-display-middle">
-	  		<div style="background-color:#000000; text-align:left; vertical-align: middle; padding:25px 25px"> 
+	  		<div style="background-color:#000000; text-align:middle; vertical-align: middle; padding:30px 30px"> 
 	  		 	<h1 class="w3-jumbo w3-animate-top">TriviaGame</h1>
 	   			<p class="w3-large w3-center w3-text-white">Choose Category:</p> 
 	   		</div>
 		    <div style="background-color: #000000; position:relative; text-align: center">
 			    <form action="/choose_category" method="post">
-			    	<input type="submit" name="choice" value="Random"></input><br></br>
-				    <input type="submit" name="choice" value="Video Games"></input><br></br>
-				    <input type="submit" name="choice" value="Anime"></input><br></br>
-				    <input type="submit" name="choice" value="Film"></input><br></br>
-				    <input type="submit" name="choice" value="Music"></input><br></br>
-				    <input type="submit" name="choice" value="Animals"></input><br></br>
-				    <input type="submit" name="choice" value="Mythology"></input><br></br>
+			    	<input type="submit" class="option" name="choice" value="Random"></input><br></br>
+				    <input type="submit" class="option" name="choice" value="Video Games"></input><br></br>
+				    <input type="submit" class="option" name="choice" value="Anime"></input><br></br>
+				    <input type="submit" class="option" name="choice" value="Film"></input><br></br>
+				    <input type="submit" class="option" name="choice" value="Music"></input><br></br>
+				    <input type="submit" class="option" name="choice" value="Animals"></input><br></br>
+				    <input type="submit" class="option" name="choice" value="Mythology"></input><br></br>
 			    </form>
 			</div>
-			<div style="background-color: #42f4d9; text-align:center; position:relative; padding: 10px">
+			<div style="background-color: #000000; text-align:center; position:relative; padding: 10px">
 				<form action="/leaderboard" method="get">
-						<p class="w3-large w3-center w3-text-black">See Leaderboard</p> 
-						<input class="center-block" type="submit" value="Leaderboard"></input> 
+						<p class="w3-large w3-center w3-text-white">See Leaderboard</p> 
+						<input class="option" type="submit" value="Leaderboard"></input> <br></br>
 				</form>
-			</div>
-			<div>
 				<form action="check_score" method="post">
 					<label>Check Score by Email</label>
-					<input type="text" name="email"></input>
-					<input type="submit" value="Submit"></input>
+					<input type="email" name="email"></input>
+					<input type="submit" style="background-color: #000000; border: solid; border-color: #80ffff; color:#80ffff" 
+					value="Submit"></input>
 				</form>
 			</div>
 		</div>

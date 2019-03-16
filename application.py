@@ -72,7 +72,14 @@ def choose_category():
   session_status = check_session()        # Get the session id
   if session_status["foundKey"]:
     category = request.form['choice']
-    uniqueIDs[session_status["response"]] = {"current_category": category, "num_times": 0, "num_correct": 0,"num_total": 10, "question_num": 0, "category_data": {}}
+    uniqueIDs[session_status["response"]] = {
+          "current_category": category, 
+          "num_times": 0, 
+          "num_correct": 0,
+          "num_total": 10, 
+          "question_num": 0, 
+          "category_data": {}
+    }
     return redirect('/start_game')
   else:
     return session_status["response"]      # Sets cookie and redirects
@@ -110,10 +117,10 @@ def start_game():
     answers.append(correct_answer)
     shuffle(answers)
     session_info["question_num"] += 1
-    return render_template('start_game.html', title='Game Start', question=question, \
-                ans1=answers[0], ans2=answers[1], ans3=answers[2], 		 \
+    return render_template('start_game.html', title='Game Start', question=question,
+                ans1=answers[0], ans2=answers[1], ans3=answers[2],
                 ans4=answers[3], correct_answer=correct_answer,
-                bg_image='pingu.jpg', question_num=session_info["question_num"])
+                question_num=session_info["question_num"])
   else:
     return session_status["response"]      # Sets cookie and redirects
 
@@ -141,7 +148,7 @@ def print_results():
   session_status = check_session()        # Get the session id
   if session_status["foundKey"]:
     session_info = uniqueIDs[session_status["response"]]  
-    return render_template('results.html', title='Results', \
+    return render_template('results.html', title='Results', 
 							num_correct=session_info["num_correct"], num_times=session_info["num_times"])
   else:  
     return session_status["response"]      # Sets cookie and redirects
@@ -157,16 +164,6 @@ def create_user():
     last_name = request.form['last_name']
     email = request.form['email']
 
-    user_data = s3.Object('css490trivia', 'rawuserdata.txt')
-    list = user_data.get()['Body'].read().decode('utf-8').splitlines()
-    f = open('rawuserdata.txt', 'a')
-    for line in list:
-      f.write(line + '\n')
-    f.write(first_name + ',' + last_name + ',' + email + ',' + str(session_info["num_correct"]) + '\n')
-
-    # Upload file to S3 bucket
-    #user_data.upload_file('rawuserdata.txt')
-    
     # Upload entry into DB if score > prior high score
     db_entry = {}
     row = table.scan(FilterExpression=Attr('email').eq(email))
@@ -187,10 +184,6 @@ def create_user():
           ExpressionAttributeValues={':highscore': session_info["num_correct"]},
           ReturnValues='UPDATED_NEW'
         )
-
-    # Delete file locally
-    f.close()
-    #os.remove('rawuserdata.txt')
     return redirect('/results')
   else:  
     return session_status["response"]      # Sets cookie and redirects
@@ -208,7 +201,7 @@ def check_score():
 
 	highscore = row['Items'][0]['highscore']
 	return render_template('score.html', title='Your Score', \
-							highscore=highscore)
+							           highscore=highscore)
 
 @application.route('/leaderboard')
 def display_leaderboard():

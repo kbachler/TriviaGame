@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+	<link rel="shortcut icon" href="https://s3-us-west-2.amazonaws.com/css490trivia/icon.jpg"/>
   </head>
   <style>
 	body,h1 {font-family: "Raleway", sans-serif}
 	body, html {height: 100%}
 	.bgimg {
-	  background-image: url("static/pingu.jpg");
+	  background-image: url("https://s3-us-west-2.amazonaws.com/css490trivia/pingu.jpg");
 	  min-height: 100%;
 	  background-position: center;
 	  background-size: cover;
@@ -22,6 +23,21 @@
 	    padding: 0.5em 1em;
 	    box-decoration-break: clone;
 	}
+	.option {
+		background-color: #000000;
+		border: solid;
+		border-color: #80ffff;
+		color: #80ffff;
+		width: 60%;
+		margin: 1%;
+		float: center;
+	}
+	input[type="submit"]:active {
+		background-color: #80ffff;
+		border: solid;
+		border-color: #000000;
+		color: #000000;
+	}
   </style>
   <body>
   	<div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
@@ -31,7 +47,7 @@
 	   			<p class="w3-large w3-center w3-text-white">Your all-time high score is {{highscore}}!</p> 
 	   		</div>
 		    <div style="background-color: #000000; position:relative; text-align: center">
-			    <form action="/reset" method="post"><input type="submit" value="Go Back"></input></form>
+			    <form action="/reset" method="post"><input type="submit" class="option" value="Go Back"></input></form>
 			</div>
 		</div>
 	</div>
