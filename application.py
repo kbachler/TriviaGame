@@ -1,14 +1,13 @@
-from flask import Flask, render_template, request, redirect
-from flask_login import LoginManager 
+from flask import Flask, render_template, make_response, request, redirect
+from flask_login import LoginManager, UserMixin   # Manage user sessions
 import requests, json, html, boto3, os
 from boto3.dynamodb.conditions import Key, Attr
 from random import shuffle
-
+import uuid
 
 # Flask Login
 application = Flask(__name__)
-login_manager = LoginManager()
-login_manager.init_app(application)
+
 
 # Initialize AWS services
 s3 = boto3.resource('s3')
@@ -20,6 +19,8 @@ table = db.Table('triviadb')
 session_token = requests.get('https://opentdb.com/api_token.php?command=request')
 token = json.loads(session_token.content.decode('utf-8'))['token']
 
+uniqueIDs = []
+counter = 0     # Global counter for unique session IDs
 num_times = 0
 num_correct = 0 
 num_total = 10
@@ -37,39 +38,36 @@ category_list = {
 category_chosen = False
 question_num = 0
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-@application.route('/login', methods=['GET', 'POST'])
-def login():
-    # Here we use a class of some kind to represent and validate our
-    # client-side form data. For example, WTForms is a library that will
-    # handle this for us, and we use a custom LoginForm to validate.
-    form = LoginForm()
-    if form.validate_on_submit():
-        # Login and validate the user.
-        # user should be an instance of your `User` class
-        login_user(user)
-
-        flask.flash('Logged in successfully.')
-
-        next = flask.request.args.get('next')
-        # is_safe_url should check if the url is safe for redirects.
-        # See http://flask.pocoo.org/snippets/62/ for an example.
-        if not is_safe_url(next):
-            return flask.abort(400)
-
-        return flask.redirect(next or flask.url_for('index'))
-    return flask.render_template('login.html', form=form)
-
 @application.route('/')
 def initialize():
-	return redirect('/home')
+  return redirect('/home')
 
 @application.route('/home')
 def home():
-	return render_template('home.html', title='Home Page')
+  id = request.cookies.get('session_id')    # Get the session_id, will be None if not existing
+  temp = False
+
+  # If id is set and returns back a valid ID
+  if len(uniqueIDs) != 0:
+    for i in uniqueIDs:
+      print("i ==", i)
+      print("session id ==", id)
+      if id == i:
+        temp = True
+        print("Session id already saved")
+
+  # If we don't, create one:
+  if temp == False:
+    global counter
+    counter += 1             # Increment global counter for unique session ID
+    my_id = str(counter)
+    uniqueIDs.append(my_id)  # Add to the end of our unique ID array
+    print(uniqueIDs)
+    resp = make_response(redirect('/home'))
+    resp.set_cookie(key='session_id', value=my_id)
+    return resp
+
+  return render_template('home.html', title='Home Page')
 
 @application.route('/choose_category', methods=['POST'])
 def choose_category():
@@ -238,4 +236,4 @@ def reset():
 	return redirect('/home')
 
 if __name__ == "__main__":
-	application.run(debug=True)
+  application.run(debug=True)
