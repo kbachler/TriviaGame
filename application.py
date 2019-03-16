@@ -3,17 +3,18 @@ from flask_login import LoginManager, UserMixin   # Manage user sessions
 import requests, json, html, boto3, os
 from boto3.dynamodb.conditions import Key, Attr
 from random import shuffle
-import uuid
 
 # Flask Login
 application = Flask(__name__)
-
 
 # Initialize AWS services
 s3 = boto3.resource('s3')
 db = boto3.resource('dynamodb', region_name='us-west-2')
 db_client = boto3.client('dynamodb', region_name='us-west-2')
-table = db.Table('triviadb')
+table = db.Table('triviadb2')
+
+# Initialize our simple notification service:
+sns = boto3.client('sns')
 
 # Trivia game variables
 session_token = requests.get('https://opentdb.com/api_token.php?command=request')
@@ -162,15 +163,18 @@ def create_user():
     session_info = uniqueIDs[session_status["response"]]  
     first_name = request.form['first_name']
     last_name = request.form['last_name']
-    email = request.form['email']
+    phone_number = request.form['phone_number']
+    number = '+1' + phone_number
+    print(number)
+    sns.publish(PhoneNumber = number, Message='Hi ' + first_name + '! Thank you for creating an account with Trivia Game :) Play again soon, okay?' )
 
     # Upload entry into DB if score > prior high score
     db_entry = {}
-    row = table.scan(FilterExpression=Attr('email').eq(email))
+    row = table.scan(FilterExpression=Attr('phone_number').eq(phone_number))
 
     # If item does not exist in table
     if row['Count'] == 0:
-      db_entry['email'] = email
+      db_entry['phone_number'] = phone_number
       db_entry['first_name'] = first_name
       db_entry['last_name'] = last_name
       db_entry['highscore'] = session_info["num_correct"]
@@ -179,7 +183,7 @@ def create_user():
       prior_highscore = row['Items'][0]['highscore']
       if session_info["num_correct"] > prior_highscore:
         table.update_item(
-          Key={'email':email},
+          Key={'phone_number':phone_number},
           UpdateExpression='set highscore=:highscore',
           ExpressionAttributeValues={':highscore': session_info["num_correct"]},
           ReturnValues='UPDATED_NEW'
@@ -191,17 +195,17 @@ def create_user():
 @application.route('/check_score', methods=['POST'])
 def check_score():
 	# scan DB for entry
-	email = request.form['email']
-	row = table.scan(FilterExpression=Attr('email').eq(email))
+  phone_number = request.form['phone_number']
+  row = table.scan(FilterExpression=Attr('phone_number').eq(phone_number))
 	
 	# If user does not exist
-	if len(row) == 0 or row['Count'] == 0:
-		return render_template('score.html', title='Your Score', \
+  if len(row) == 0 or row['Count'] == 0:
+	  return render_template('score.html', title='Your Score', \
 							highscore='absolutely nothing')
 
-	highscore = row['Items'][0]['highscore']
-	return render_template('score.html', title='Your Score', \
-							           highscore=highscore)
+  highscore = row['Items'][0]['highscore']
+  return render_template('score.html', title='Your Score', \
+							highscore=highscore)
 
 @application.route('/leaderboard')
 def display_leaderboard():
@@ -244,7 +248,6 @@ def display_leaderboard():
 					 first_name5=score_list[4]['first_name'], \
 					 last_name5=score_list[4]['last_name'], \
 					 highscore5=score_list[4]['highscore'])
-
 
 # Restarts the game instance
 @application.route('/reset', methods=['POST'])
