@@ -14,7 +14,7 @@ db_client = boto3.client('dynamodb', region_name='us-west-2')
 table = db.Table('triviadb2')
 
 # Initialize our simple notification service:
-sns = boto3.client('sns')
+sns = boto3.client('sns', region_name='us-west-2')
 
 # Trivia game variables
 session_token = requests.get('https://opentdb.com/api_token.php?command=request')
