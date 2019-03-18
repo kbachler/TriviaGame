@@ -4,6 +4,23 @@ import requests, json, html, boto3, os
 from boto3.dynamodb.conditions import Key, Attr
 from random import shuffle
 
+############################################################################################## 
+# Kayla Bachler & David Cha
+# CSS490 - Program #5
+# 3-17-2019
+# DESCRIPTION:
+# application.py is the main program for our Trivia Game. This program
+# utilizes the following AWS services: S3, DynamoDB Table, SNS, Elastic
+# Beanstalk, and CodePipeline. We also consume the Open TriviaDB API. 
+# Below is a breakdown of the service responsibilities:
+# 1. S3 Bucket - Image storage for website 
+# 2. DynamoDB Table - Store users name, phone number & high score
+# 3. Elastic BeanStalk - Website hosting
+# 4. Open Trivia API - Trivia categories, questions and answers (https://opentdb.com/api_config.php)
+# 5. Notifications - AWS Simple Notification Service to notify user upon account creation
+# 6. AWS Codepipeline - Supports push events from GitHub for development to automate deployment.
+###############################################################################################
+
 # Flask Login
 application = Flask(__name__)
 
@@ -49,6 +66,8 @@ question_num = 0
 def initialize():
   return redirect('/home')
 
+# Check the cookies for the session for the current user.
+# Saves the session for the next time the user plays 
 def check_session():
   id = request.cookies.get('session_id')    # Get the session_id, will be None if not existing
 
@@ -75,6 +94,7 @@ def home():
   else:
     return session_status["response"]        # Sets cookie and redirects
 
+# Choose the category
 @application.route('/choose_category', methods=['POST'])
 def choose_category():
   session_status = check_session()        # Get the session id
