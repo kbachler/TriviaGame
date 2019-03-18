@@ -1,6 +1,7 @@
 # TriviaGame
 Kayla Bachler & David Cha @dkcha
-Cloud Computing Final Project :grin:
+
+Cloud Computing Final Project :cloud:
 
 Location of the URL of the site:​ ​http://css490triviagame.us-west-2.elasticbeanstalk.com/home 
 
