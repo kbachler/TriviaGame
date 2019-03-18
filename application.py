@@ -178,6 +178,11 @@ def create_user():
     first_name = request.form['first_name']
     last_name = request.form['last_name']
     phone_number = request.form['phone_number']
+
+    # If user puts in no info for user creation, just wants result
+    if first_name == '' or last_name == '' or phone_number == '':
+      return redirect('/results') 
+
     number = '+1' + phone_number
     print(number)
     sns.publish(PhoneNumber = number, Message='Hi ' + first_name + '! Thank you for creating an account with Trivia Game :) Play again soon, okay?' )
@@ -210,6 +215,9 @@ def create_user():
 def check_score():
 	# scan DB for entry
   phone_number = request.form['phone_number']
+  if phone_number == '':
+    return redirect('/home')
+    
   row = table.scan(FilterExpression=Attr('phone_number').eq(phone_number))
 	
 	# If user does not exist
