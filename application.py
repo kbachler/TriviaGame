@@ -17,8 +17,15 @@ table = db.Table('triviadb2')
 sns = boto3.client('sns', region_name='us-west-2')
 
 # Trivia game variables
-session_token = requests.get('https://opentdb.com/api_token.php?command=request')
-token = json.loads(session_token.content.decode('utf-8'))['token']
+# session_token = ''
+# token = ''
+
+def get_token():
+  global session_token, token
+  session_token = requests.get('https://opentdb.com/api_token.php?command=request')
+  token = json.loads(session_token.content.decode('utf-8'))['token']
+
+get_token()
 
 uniqueIDs = dict()  # Dictionary for sessionIDs and session values
 counter = 0         # Global counter for unique session IDs
@@ -105,6 +112,13 @@ def start_game():
       global session_token, token
       session_token = requests.get('https://opentdb.com/api_token.php?command=reset&token=' + str(token))
       token = json.loads(session_token.content.decode('utf-8'))['token']
+      response = requests.get(category_list[session_info["category"]])
+      data = response.content.decode('utf-8')
+      session_info["category_data"] = json.loads(data)
+      
+    # Resets token if 6+ hours of inactivity
+    if session_info["category_data"]['response_code'] == 3:
+      get_token()
       response = requests.get(category_list[session_info["category"]])
       data = response.content.decode('utf-8')
       session_info["category_data"] = json.loads(data)
