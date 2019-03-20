@@ -34,9 +34,6 @@ table = db.Table('triviadb2')
 sns = boto3.client('sns', region_name='us-west-2')
 
 # Trivia game variables
-# session_token = ''
-# token = ''
-
 def get_token():
   global session_token, token
   session_token = requests.get('https://opentdb.com/api_token.php?command=request')
@@ -58,7 +55,7 @@ category_list = {
 				'Film':'https://opentdb.com/api.php?amount=10&category=11&type=multiple&token=' + token,
 				'Music':'https://opentdb.com/api.php?amount=10&category=12&type=multiple&token=' + token,
 				'Animals':'https://opentdb.com/api.php?amount=10&category=27&type=multiple&token=' + token,
-				'Mythology':'https://opentdb.com/api.php?amount=10&category=20&type=multiple&token=' + token
+				'Computer Science':'https://opentdb.com/api.php?amount=10&category=18&type=multiple&token=' + token
 				}
 question_num = 0
 
@@ -126,9 +123,9 @@ def start_game():
       data = response.content.decode('utf-8')
       session_info["category_data"] = json.loads(data)
       print(session_info["category_data"])
-
+    print(session_info["category_data"]['response_code'])
     # Resets token if questions are all exhausted
-    if session_info["category_data"]['response_code'] == 4:
+    if ((session_info["category_data"]['response_code'] == 4) or (session_info["category_data"]['response_code'] == 3)):
       global session_token, token
       session_token = requests.get('https://opentdb.com/api_token.php?command=reset&token=' + str(token))
       token = json.loads(session_token.content.decode('utf-8'))['token']
@@ -137,11 +134,14 @@ def start_game():
       session_info["category_data"] = json.loads(data)
       
     # Resets token if 6+ hours of inactivity
-    if session_info["category_data"]['response_code'] == 3:
-      get_token()
-      response = requests.get(category_list[session_info["category"]])
-      data = response.content.decode('utf-8')
-      session_info["category_data"] = json.loads(data)
+    # if session_info["category_data"]['response_code'] == 3:
+    #   #get_token()
+    #   global session_token, token
+    #   session_token = requests.get('https://opentdb.com/api_token.php?command=request')
+    #   token = json.loads(session_token.content.decode('utf-8'))['token']
+    #   response = requests.get(category_list[session_info["category"]])
+    #   data = response.content.decode('utf-8')
+    #   session_info["category_data"] = json.loads(data)
 
     answers = []
 
@@ -205,7 +205,7 @@ def create_user():
 
     number = '+1' + phone_number
     print(number)
-    sns.publish(PhoneNumber = number, Message='Hi ' + first_name + '! Thank you for creating an account with Trivia Game :) Play again soon, okay?' )
+    sns.publish(PhoneNumber = number, Message='Hi ' + first_name + '! Thank you for playing Trivia Game! :) Play again soon, okay?' )
 
     # Upload entry into DB if score > prior high score
     db_entry = {}
