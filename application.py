@@ -124,24 +124,25 @@ def start_game():
       session_info["category_data"] = json.loads(data)
       print(session_info["category_data"])
     print(session_info["category_data"]['response_code'])
+
     # Resets token if questions are all exhausted
-    if ((session_info["category_data"]['response_code'] == 4) or (session_info["category_data"]['response_code'] == 3)):
+    if session_info["category_data"]['response_code'] == 4:
       global session_token, token
       session_token = requests.get('https://opentdb.com/api_token.php?command=reset&token=' + str(token))
       token = json.loads(session_token.content.decode('utf-8'))['token']
-      response = requests.get(category_list[session_info["category"]])
+      response = requests.get(category_list[session_info["category_data"]])
       data = response.content.decode('utf-8')
       session_info["category_data"] = json.loads(data)
       
     # Resets token if 6+ hours of inactivity
-    # if session_info["category_data"]['response_code'] == 3:
-    #   #get_token()
-    #   global session_token, token
-    #   session_token = requests.get('https://opentdb.com/api_token.php?command=request')
-    #   token = json.loads(session_token.content.decode('utf-8'))['token']
-    #   response = requests.get(category_list[session_info["category"]])
-    #   data = response.content.decode('utf-8')
-    #   session_info["category_data"] = json.loads(data)
+    if session_info["category_data"]['response_code'] == 3:
+       #get_token()
+       #global session_token, token
+       session_token = requests.get('https://opentdb.com/api_token.php?command=request')
+       token = json.loads(session_token.content.decode('utf-8'))['token']
+       response = requests.get(category_list[session_info["category_data"]])
+       data = response.content.decode('utf-8')
+       session_info["category_data"] = json.loads(data)
 
     answers = []
 
