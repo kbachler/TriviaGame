@@ -96,6 +96,7 @@ def home():
 def choose_category():
   session_status = check_session()        # Get the session id
   if session_status["foundKey"]:
+    global category
     category = request.form['choice']
     uniqueIDs[session_status["response"]] = {
           "current_category": category, 
@@ -118,34 +119,33 @@ def start_game():
     if session_info["num_times"] >= session_info["num_total"] or session_info["question_num"] >= session_info["num_total"]:
       return render_template('user_creation.html', title='Create User')
 
+    print('sessionInfo' + str(session_info))
     if not session_info["category_data"]:
       response = requests.get(category_list[session_info["current_category"]])
       data = response.content.decode('utf-8')
       session_info["category_data"] = json.loads(data)
-      print(session_info["category_data"])
+      print('what' + str(session_info["category_data"]))
     print(session_info["category_data"]['response_code'])
 
+    global session_token, token, category
     # Resets token if questions are all exhausted
     if session_info["category_data"]['response_code'] == 4:
-      global session_token, token
       session_token = requests.get('https://opentdb.com/api_token.php?command=reset&token=' + str(token))
       token = json.loads(session_token.content.decode('utf-8'))['token']
-      response = requests.get(category_list[session_info["category_data"]])
+      response = requests.get(category_list[session_info['current_category']])
       data = response.content.decode('utf-8')
       session_info["category_data"] = json.loads(data)
       
     # Resets token if 6+ hours of inactivity
     if session_info["category_data"]['response_code'] == 3:
-       #get_token()
-       #global session_token, token
        session_token = requests.get('https://opentdb.com/api_token.php?command=request')
        token = json.loads(session_token.content.decode('utf-8'))['token']
-       response = requests.get(category_list[session_info["category_data"]])
+       response = requests.get(category_list[session_info['current_category']])
        data = response.content.decode('utf-8')
        session_info["category_data"] = json.loads(data)
 
     answers = []
-
+    print(session_info)
     question = html.unescape(session_info["category_data"]['results'][session_info["question_num"]]['question'])
     for i in session_info["category_data"]['results'][session_info["question_num"]]['incorrect_answers']:
       answers.append(html.unescape(i))
